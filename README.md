@@ -15,3 +15,4 @@ composer.json
         "joshcam/mysqli-database-class":">=2.9.3"
     }
 }
+
