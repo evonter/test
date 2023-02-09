@@ -1,0 +1,81 @@
+<html lang="{{ lang }}">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>{{ title }}</title>
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/fontawesome.min.css" integrity="sha384-QYIZto+st3yW+o8+5OHfT6S482Zsvz2WfOzpFSXMF9zqeLcFV0/wlZpMtyFcZALm" crossorigin="anonymous">
+</head>
+<body>
+   <div class="container">
+      <div class="row mt-5">
+         <div class="col-6 offset-3">
+            <div class="float-end">
+               <a onclick="$('.container').load('/?lang=ru .container'); return false;" class="lang text-decoration-none pb-2 badge {% if lang == 'ru' %} bg-success {% else %} bg-secondary {% endif %}">ru</a>
+               <a onclick="$('.container').load('/?lang=en .container'); return false;" class="lang text-decoration-none pb-2 badge {% if lang == 'en' %} bg-success {% else %} bg-secondary {% endif %}">en</a>
+            </div>
+            <h1>{{ h1 }}</h1>
+            <form id="form" class="mt-3" onSubmit="sendForm(); return false;">
+               <div class="mb-3">
+                  <label for="name" class="form-label">{{ label_name }}</label>
+                  <input type="text" name="name" class="form-control" id="name">
+               </div>
+               <div class="mb-3">
+                  <label for="email" class="form-label">{{ label_email }}</label>
+                  <input type="email" name="email" class="form-control" id="email">
+               </div>
+               <div class="mb-3">
+                  <label for="phone" class="form-label">{{ label_phone }}</label>
+                  <input type="telephone" name="phone" class="form-control" id="phone">
+               </div>
+               
+               <button type="submit" class="btn btn-primary btn-send">{{ button_send }}</button>
+            </form>
+         </div>
+      </div>
+   </div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+<script>
+   function sendForm() {
+      $('#form').find('.error').remove();
+
+      $.ajax({
+         url: '/',
+         type: 'post',
+         data: $('#form').find('input').serialize(),
+         dataType: 'json',
+         beforeSend: function () {
+            $('#form .btn-send').attr('disabled','disabled');
+         },
+         success: function (json) {
+            
+            $('#form .btn-send').removeAttr('disabled');
+
+            if (json['error']) {
+                if (json['error']['fields']) {
+                  for (field in json['error']['fields']) {
+                     $('#form').find('#'+field).after('<div class="text-danger error">' + json['error']['fields'][field] + '</div>');
+                  }
+               } else {
+                  $('#form').append('<div class="text-danger error">' + json['error'] + '</div>');
+               }
+            }
+
+            if (json['success']) {
+               $('#form').parent().html('<p>'+json['success']+'</p>');
+            }
+
+         },
+         error: function (xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+         }
+      });
+   }
+</script>
+</body>
+</html>
